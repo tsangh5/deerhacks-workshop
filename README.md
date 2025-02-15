@@ -1,4 +1,4 @@
-# Rename OtherApp.js to App.js and index2.html to index.html if you want to use Face Detection rather than Hand Tracking
+Note: Rename OtherApp.js to App.js and index2.html to index.html if you want to use Face Detection rather than Hand Tracking
 
 
 # Getting Started with Create React App
