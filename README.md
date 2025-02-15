@@ -1,3 +1,6 @@
+# Rename OtherApp.js to App.js and index2.html to index.html if you want to use Face Detection rather than Hand Tracking
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
