@@ -1,18 +1,17 @@
 import logo from './logo.svg';
 import './App.css';
 // Import libraries
-import {Hands} from '@mediapipe/hands';
-import * as hands from '@mediapipe/hands';
+import {FaceDetection} from '@mediapipe/face_detection';
+import * as Facedetection from '@mediapipe/face_detection';
 import * as cam from '@mediapipe/camera_utils';
 import Webcam from 'react-webcam';
 import {useRef, useEffect, use} from 'react';
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { drawRectangle, drawLandmarks } from "@mediapipe/drawing_utils";
 
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   var camera = null;
-
   const onResults = (results) => {
     const canvas = canvasRef.current;
     canvas.width = 640;
@@ -21,32 +20,33 @@ function App() {
     context.save();
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(
-        results.image, 0, 0, canvas.width, canvas.height);
-    if (results.multiHandLandmarks) {
-      for (const landmarks of results.multiHandLandmarks) {
-        drawConnectors(context, landmarks, hands.HAND_CONNECTIONS,
-                       {color: '#00FF00', lineWidth: 5});
-        drawLandmarks(context, landmarks, {color: '#FF0000', lineWidth: 2});
-      }
+      results.image, 0, 0, canvas.width, canvas.height);
+    if (results.detections.length > 0) {
+      drawRectangle(
+          context, results.detections[0].boundingBox,
+          {color: 'blue', lineWidth: 4, fillColor: '#00000000'});
+      drawLandmarks(context, results.detections[0].landmarks, {
+        color: 'red',
+        radius: 5,
+      });
     }
     context.restore();
   }
   useEffect(() => {
-    const handTracker = new Hands({locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+    const faceDetection = new FaceDetection({locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
     }});
-    handTracker.setOptions({
-        maxNumHands: 2,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
+    faceDetection.setOptions({
+      model:  'short',
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
     });
-    handTracker.onResults(onResults);
+    faceDetection.onResults(onResults);
     if (webcamRef.current) {
       camera = new cam.Camera(webcamRef.current.video, {
         onFrame: async () => {
-          if (handTracker){
-            await handTracker.send({image: webcamRef.current.video});
+          if (faceDetection){
+            await faceDetection.send({image: webcamRef.current.video});
           }
         },
         width: 640,
